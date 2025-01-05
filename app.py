@@ -1,3 +1,5 @@
+import random
+import string
 from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
@@ -8,7 +10,7 @@ common_passwords = [
     "qwerty", "abc123", "password1", "123123", "admin", "letmein", "welcome"
 ]
 
-# Password evaluation function
+# Function to check password strength
 def check_password_strength(password):
     feedback = []
     is_strong = True
@@ -25,7 +27,7 @@ def check_password_strength(password):
     if any(char.isupper() for char in password):
         score += 1
     else:
-        feedback.append("Add uppercase letters.")
+        feedback.append("Add uppercase letters. ")
         is_strong = False
 
     # Lowercase criteria
@@ -46,7 +48,7 @@ def check_password_strength(password):
     if any(char in "!@#$%^&*()-_=+[]{};:'\",.<>?/\\|`~" for char in password):
         score += 1
     else:
-        feedback.append("Add special characters like !@#$%^&*()-_=+[]")
+        feedback.append("Add special characters. like !@#$%^&*()")
         is_strong = False
 
     # Common passwords check
@@ -56,13 +58,19 @@ def check_password_strength(password):
 
     # Strength level
     if score <= 2:
-        strength = "weak"
+        strength = "Weak"
     elif score == 3:
-        strength = "moderate"
+        strength = "Moderate"
     else:
-        strength = "strong"
+        strength = "Strong"
 
     return strength, feedback
+
+
+# Function to generate a random password
+def generate_password(length=12):
+    characters = string.ascii_letters + string.digits + "!@#$%^&*()-_=+[]{};:'\",.<>?/\\|`~"
+    return ''.join(random.choice(characters) for _ in range(length))
 
 
 @app.route('/')
@@ -74,7 +82,8 @@ def index():
 def check_password():
     password = request.form['password']
     strength, feedback = check_password_strength(password)
-    return jsonify({"strength": strength, "feedback": feedback})
+    suggested_password = generate_password() if strength == "Weak" else None
+    return jsonify({"strength": strength, "feedback": feedback, "suggested_password": suggested_password})
 
 
 if __name__ == '__main__':

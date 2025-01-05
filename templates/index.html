@@ -6,94 +6,103 @@
     <title>Password Strength Checker</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
+            font-family: Arial, sans-serif; /* Clean and modern font */
+            background-color: #f4f4f4; /* Light gray background */
             margin: 0;
             padding: 0;
         }
-
+    
         .container {
             max-width: 500px;
-            margin: 50px auto;
+            margin: 50px auto; /* Center the container vertically and horizontally */
             padding: 20px;
-            background: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+            background: #fff; /* White background */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a soft shadow */
+            border-radius: 8px; /* Rounded corners */
         }
-
+    
         h1 {
             text-align: center;
-            color: #333;
+            color: #333; /* Dark gray for title text */
         }
-
+    
         label {
             font-size: 16px;
-            color: #555;
+            color: #555; /* Medium gray for labels */
         }
-
+    
         input {
             width: 100%;
             padding: 10px;
             margin: 10px 0 20px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            border: 1px solid #ddd; /* Light gray border */
+            border-radius: 4px; /* Rounded corners */
             font-size: 16px;
         }
-
+    
         button {
             width: 100%;
             padding: 10px;
-            background-color: #28a745;
+            background-color: #28a745; /* Green button background */
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 4px; /* Rounded corners */
             font-size: 18px;
             cursor: pointer;
         }
-
+    
         button:hover {
-            background-color: #218838;
+            background-color: #218838; /* Darker green on hover */
         }
-
+    
         .result {
+            font-size: 18px; /* Slightly larger font for results */
             margin-top: 20px;
+            text-align: center; /* Center-align the text */
         }
-
-        .result p {
-            font-size: 16px;
-            color: #333;
-        }
-
-        .strong {
-            color: green;
-        }
-
-        .moderate {
-            color: orange;
-        }
-
+    
         .weak {
-            color: red;
+            color: red; /* Red for weak passwords */
         }
-
+    
+        .moderate {
+            color: orange; /* Orange for moderate passwords */
+        }
+    
+        .strong {
+            color: green; /* Green for strong passwords */
+        }
+    
+        ul {
+            list-style-type: disc; /* Bulleted list */
+            padding-left: 20px; /* Indent for bullets */
+            color: #555; /* Medium gray for text */
+        }
+    
+        p {
+            margin: 5px 0; /* Consistent spacing between paragraphs */
+        }
+    
         .retry-button {
             margin-top: 20px;
             padding: 10px;
-            background-color: #28a745;
+            background-color: #28a745; /* Green button background */
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 4px; /* Rounded corners */
             font-size: 16px;
             cursor: pointer;
             text-align: center;
             display: block;
             width: 100%;
         }
-
+    
         .retry-button:hover {
-            background-color: #218838;
+            background-color: #218838; /* Darker green on hover */
         }
     </style>
+    
+    
 </head>
 <body>
     <div class="container">
@@ -111,35 +120,50 @@
 
     <script>
         document.getElementById('password-form').addEventListener('submit', function (e) {
-            e.preventDefault();
-            const password = document.getElementById('password').value;
+    e.preventDefault();
+    const password = document.getElementById('password').value;
 
-            fetch('/check_password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ password })
-            })
-            .then(response => response.json())
-            .then(data => {
-                const resultDiv = document.getElementById('result');
-                const retryButtonContainer = document.getElementById('retry-button-container');
-                resultDiv.innerHTML = `<p class="${data.strength.toLowerCase()}">Password Strength: ${data.strength}</p>`;
-                if (data.feedback.length > 0) {
-                    resultDiv.innerHTML += "<p>Suggestions:</p><ul>";
-                    data.feedback.forEach(item => {
-                        resultDiv.innerHTML += `<li>${item}</li>`;
-                    });
-                    resultDiv.innerHTML += "</ul>";
-                }
-                retryButtonContainer.style.display = "block";
+    fetch('/check_password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ password })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const resultDiv = document.getElementById('result');
+        const retryButtonContainer = document.getElementById('retry-button-container');
+
+        // Clear previous results
+        resultDiv.innerHTML = '';
+
+        // Display password strength with corresponding class
+        resultDiv.innerHTML = `<p class="${data.strength.toLowerCase()}">Password Strength: ${data.strength}</p>`;
+        
+        // Display suggestions if available
+        if (data.feedback.length > 0) {
+            resultDiv.innerHTML += "<p>Suggestions:</p><ul>";
+            data.feedback.forEach(item => {
+                resultDiv.innerHTML += `<li>${item}</li>`;
             });
-        });
-
-        function retry() {
-            document.getElementById('password-form').reset();
-            document.getElementById('result').innerHTML = '';
-            document.getElementById('retry-button-container').style.display = "none";
+            resultDiv.innerHTML += "</ul>";
         }
+
+        // Display suggested password if strength is "Weak"
+        if (data.suggested_password) {
+            resultDiv.innerHTML += `<p>Suggested Password: <strong>${data.suggested_password}</strong></p>`;
+        }
+
+        // Show retry button
+        retryButtonContainer.style.display = "block";
+    });
+});
+
+function retry() {
+    document.getElementById('password-form').reset();
+    document.getElementById('result').innerHTML = '';
+    document.getElementById('retry-button-container').style.display = "none";
+}
+
     </script>
 </body>
 </html>
